@@ -1,10 +1,10 @@
 const colors={peninsula:'#d88042',island:'#3a916d',strait:'#8263a4',sea:'#377eae'};
 const labels={peninsula:'Полуострова',island:'Острова',strait:'Проливы',sea:'Моря'};
 const singular={peninsula:'Полуостров',island:'Остров / архипелаг',strait:'Пролив',sea:'Море'};
-// Longitude > 180° is unwrapped to keep the Bering region continuous on screen.
+// Longitudes above 180° wrap to the western edge of the world map.
 const features=[
  {n:1,name:'Камчатка',type:'peninsula',lon:159.5,lat:56,dx:7,dy:3,desc:'Полуостров на северо-востоке Азии между Охотским морем и Тихим океаном.'},
- {n:2,name:'Аляска',type:'peninsula',lon:190,lat:63.5,dx:-5,dy:3,desc:'Полуостров на северо-западе Северной Америки между Беринговым морем и Тихим океаном; на карте видна его западная часть у Берингова пролива.'},
+ {n:2,name:'Аляска',type:'peninsula',lon:203.5,lat:57.8,dx:4,dy:3,desc:'Полуостров на юго-западе Аляски между Беринговым морем и Тихим океаном.'},
  {n:3,name:'Корея',type:'peninsula',lon:127.8,lat:38.2,dx:-5.2,dy:4,desc:'Полуостров Восточной Азии между Жёлтым и Японским морями.'},
  {n:4,name:'Малакка',type:'peninsula',lon:101.8,lat:4.6,dx:-4.9,dy:-2,desc:'Узкий полуостров Юго-Восточной Азии между Малаккским проливом и Сиамским заливом.'},
  {n:5,name:'Индокитай',type:'peninsula',lon:103.6,lat:16.2,dx:-4.9,dy:4.5,desc:'Полуостров Юго-Восточной Азии между Бенгальским заливом и Южно-Китайским морем.'},
@@ -13,10 +13,10 @@ const features=[
  {n:8,name:'Японские острова',type:'island',lon:139.3,lat:37.4,dx:6,dy:-1.4,desc:'Островная дуга Восточной Азии между Японским морем и Тихим океаном.'},
  {n:9,name:'Новая Зеландия',type:'island',lon:171,lat:-42.4,dx:5,dy:3.4,desc:'Островная страна юго-западной части Тихого океана к юго-востоку от Австралии.'},
  {n:10,name:'Тайвань',type:'island',lon:121,lat:23.7,dx:-4,dy:-3.4,desc:'Остров у восточного побережья Китая, между Восточно-Китайским и Южно-Китайским морями.'},
- {n:11,name:'Алеутские острова',type:'island',lon:184,lat:52,dx:-4.5,dy:-3.5,desc:'Островная дуга между Беринговым морем и Тихим океаном, протянувшаяся от Аляски к Камчатке.'},
+ {n:11,name:'Алеутские острова',type:'island',lon:184,lat:52,dx:12,dy:-3.5,desc:'Островная дуга между Беринговым морем и Тихим океаном, протянувшаяся от Аляски к Камчатке.'},
  {n:12,name:'Сахалин',type:'island',lon:143.1,lat:50.4,dx:-5,dy:4.8,desc:'Остров у восточного побережья России между Охотским и Японским морями.'},
- {n:13,name:'Берингов пролив',type:'strait',lon:191,lat:65.8,dx:-6.6,dy:-4.7,desc:'Пролив между Чукоткой и Аляской, соединяющий Северный Ледовитый и Тихий океаны.'},
- {n:14,name:'Берингово море',type:'sea',lon:179,lat:58.1,dx:-3.4,dy:-5,desc:'Окраинное море Тихого океана между Камчаткой, Чукоткой, Аляской и Алеутскими островами.'},
+ {n:13,name:'Берингов пролив',type:'strait',lon:191,lat:65.8,dx:4,dy:-4.7,desc:'Пролив между Чукоткой и Аляской, соединяющий Северный Ледовитый и Тихий океаны.'},
+ {n:14,name:'Берингово море',type:'sea',lon:179,lat:58.1,dx:-14,dy:-5,desc:'Окраинное море Тихого океана между Камчаткой, Чукоткой, Аляской и Алеутскими островами.'},
  {n:15,name:'Охотское море',type:'sea',lon:149.1,lat:54.7,dx:-3.7,dy:-4.2,desc:'Море у восточного побережья России, ограниченное Камчаткой, Сахалином и Курильскими островами.'},
  {n:16,name:'Японское море',type:'sea',lon:133.7,lat:40,dx:-5.4,dy:-3.7,desc:'Море между материковой Азией, Корейским полуостровом, Сахалином и Японскими островами.'},
  {n:17,name:'Восточно-Китайское море',type:'sea',lon:126.4,lat:29.5,dx:6.4,dy:-1.7,desc:'Море между восточным побережьем Китая, Тайванем и островами Рюкю.'},
@@ -101,7 +101,8 @@ const facts={
 const $=s=>document.querySelector(s);
 const markers=$('#markers'),leaders=$('#leader-layer'),list=$('#feature-list'),card=$('#feature-card');
 let active='all',query='',selected=1,zoom=1,panX=0,panY=0,drag=null;
-const x=lon=>(lon+17)/215*100, y=lat=>(84-lat)/138*100;
+const wrapLon=lon=>((lon+180)%360+360)%360-180;
+const x=lon=>(wrapLon(lon)+180)/360*100, y=lat=>(90-lat)/180*100;
 const coord=f=>`${Math.abs(f.lat).toFixed(1)}° ${f.lat<0?'ю. ш.':'с. ш.'} · ${Math.abs(f.lon>180?f.lon-360:f.lon).toFixed(1)}° ${(f.lon>180||f.lon<0)?'з. д.':'в. д.'}`;
 
 for(const f of features){
@@ -112,7 +113,7 @@ for(const f of features){
  const dot=document.createElement('span');dot.className='geo-dot';dot.style.cssText=`left:${x(f.lon)}%;top:${y(f.lat)}%;--marker-color:${colors[f.type]}`;dot.dataset.id=f.n;markers.append(dot);
  const b=document.createElement('button');b.type='button';b.className='marker';b.textContent=f.n;b.title=`${f.name} — ${coord(f)}`;b.setAttribute('aria-label',`${f.n}. ${f.name}, ${coord(f)}`);
  b.style.cssText=`left:${x(f.lon+f.dx)}%;top:${y(f.lat+f.dy)}%;--marker-color:${colors[f.type]}`;b.dataset.id=f.n;
- b.addEventListener('click',()=>select(f.n,true));markers.append(b);
+  b.addEventListener('click',()=>select(f.n,true));markers.append(b);
 }
 
 const pills=$('#filter-pills');
@@ -144,7 +145,7 @@ function render(){
  for(const [type,label] of Object.entries(labels)){
   const group=matching.filter(f=>f.type===type);if(!group.length)continue;
   const h=document.createElement('div');h.className='group-title';h.style.color=colors[type];h.textContent=label;list.append(h);
-  for(const f of group){const row=document.createElement('button');row.type='button';row.className='feature-row';row.dataset.id=f.n;row.innerHTML=`<span class="row-number" style="--row-color:${colors[type]}">${f.n}</span><span class="row-name">${f.name}</span><span class="row-arrow">→</span>`;row.addEventListener('click',()=>{select(f.n);revealMap()});list.append(row)}
+  for(const f of group){const row=document.createElement('button');row.type='button';row.className='feature-row';row.dataset.id=f.n;row.innerHTML=`<span class="row-number" style="--row-color:${colors[type]}">${f.n}</span><span class="row-name">${f.name}</span><span class="row-arrow">→</span>`;row.addEventListener('click',()=>{select(f.n);focusFeature(f);revealMap()});list.append(row)}
  }
  if(!matching.length)list.innerHTML='<div class="no-results">Объект не найден. Попробуй другой запрос.</div>';
  if(matching.length&&!matching.some(f=>f.n===selected))select(matching[0].n);else select(selected);
@@ -152,7 +153,8 @@ function render(){
 render();
 
 const viewport=$('#map-viewport'),stage=$('#map-stage');
-function applyView(){stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;stage.style.setProperty('--nums',Math.pow(1/zoom,1.5).toFixed(4));document.documentElement.style.setProperty("--scale-width",`${stage.offsetWidth*0.0965*zoom}px`)}
+function applyView(){stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;stage.style.setProperty('--nums',Math.pow(1/zoom,1.5).toFixed(4));document.documentElement.style.setProperty('--scale-width',`${stage.offsetWidth*0.144*zoom}px`)}
+function focusFeature(f){zoom=Math.max(zoom,2.5);const limitX=(zoom-1)*stage.offsetWidth/2,limitY=(zoom-1)*stage.offsetHeight/2;panX=Math.max(-limitX,Math.min(limitX,(50-x(f.lon))*stage.offsetWidth*zoom/100));panY=Math.max(-limitY,Math.min(limitY,(50-y(f.lat))*stage.offsetHeight*zoom/100));applyView()}
 function setZoom(next){zoom=Math.max(1,Math.min(3.5,next));if(zoom===1){panX=0;panY=0}applyView()}
 $('#zoom-in').addEventListener('click',()=>setZoom(zoom*1.3));
 $('#zoom-out').addEventListener('click',()=>setZoom(zoom/1.3));
