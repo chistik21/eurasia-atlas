@@ -100,6 +100,7 @@ const facts={
 
 const $=s=>document.querySelector(s);
 const markers=$('#markers'),leaders=$('#leader-layer'),list=$('#feature-list'),card=$('#feature-card');
+const markerEntries=[];
 let active='all',query='',selected=1,zoom=1,panX=0,panY=0,drag=null;
 const wrapLon=lon=>((lon+180)%360+360)%360-180;
 const x=lon=>(wrapLon(lon)+180)/360*100, y=lat=>(90-lat)/180*100;
@@ -113,7 +114,8 @@ for(const f of features){
  const dot=document.createElement('span');dot.className='geo-dot';dot.style.cssText=`left:${x(f.lon)}%;top:${y(f.lat)}%;--marker-color:${colors[f.type]}`;dot.dataset.id=f.n;markers.append(dot);
  const b=document.createElement('button');b.type='button';b.className='marker';b.textContent=f.n;b.title=`${f.name} — ${coord(f)}`;b.setAttribute('aria-label',`${f.n}. ${f.name}, ${coord(f)}`);
  b.style.cssText=`left:${x(f.lon+f.dx)}%;top:${y(f.lat+f.dy)}%;--marker-color:${colors[f.type]}`;b.dataset.id=f.n;
-  b.addEventListener('click',()=>select(f.n,true));markers.append(b);
+ b.addEventListener('click',()=>select(f.n,true));markers.append(b);
+ markerEntries.push({f,b,line});
 }
 
 const pills=$('#filter-pills');
@@ -128,10 +130,12 @@ $('#search').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLo
 document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==$('#search')){e.preventDefault();$('#search').focus()}if(e.key==='Escape'&&document.activeElement===$('#search')){$('#search').blur()}});
 
 function visible(f){return(active==='all'||active===f.type)&&f.name.toLocaleLowerCase('ru').includes(query)}
-function select(n,scroll=false){selected=n;const f=features.find(o=>o.n===n);if(!f)return;
+function select(n,scroll=false){const changed=selected!==n;selected=n;const f=features.find(o=>o.n===n);if(!f)return;
  card.style.setProperty('--card-color',colors[f.type]);
  card.innerHTML=`<div class="card-meta">${singular[f.type]} · № ${f.n.toString().padStart(2,'0')}</div><h3>${f.name}</h3><p>${f.desc}</p><div class="coords">${coord(f)}</div><section class="fun-facts" aria-labelledby="facts-title"><h4 id="facts-title">✦ Интересно знать</h4><ul>${facts[f.n].map(fact=>`<li>${fact}</li>`).join('')}</ul></section>`;
- document.querySelectorAll('.marker,.feature-row').forEach(el=>el.classList.toggle('selected',Number(el.dataset.id)===n));
+ if(changed){card.classList.remove('card-enter');void card.offsetWidth;card.classList.add('card-enter')}
+ document.querySelectorAll('.marker,.geo-dot,.feature-row').forEach(el=>el.classList.toggle('selected',Number(el.dataset.id)===n));
+ leaders.querySelectorAll('line').forEach(el=>el.classList.toggle('selected',Number(el.dataset.id)===n));
  if(scroll){const row=list.querySelector(`.feature-row[data-id="${n}"]`);row?.scrollIntoView({block:'nearest',behavior:'smooth'})}
 }
 function revealMap(){const m=$('#map-shell'),r=m.getBoundingClientRect();if(r.top<0||r.bottom>window.innerHeight)m.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -153,16 +157,53 @@ function render(){
 render();
 
 const viewport=$('#map-viewport'),stage=$('#map-stage');
-function applyView(){stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;stage.style.setProperty('--nums',Math.pow(1/zoom,1.5).toFixed(4));document.documentElement.style.setProperty('--scale-width',`${stage.offsetWidth*0.144*zoom}px`)}
-function focusFeature(f){zoom=Math.max(zoom,2.5);const limitX=(zoom-1)*stage.offsetWidth/2,limitY=(zoom-1)*stage.offsetHeight/2;panX=Math.max(-limitX,Math.min(limitX,(50-x(f.lon))*stage.offsetWidth*zoom/100));panY=Math.max(-limitY,Math.min(limitY,(50-y(f.lat))*stage.offsetHeight*zoom/100));applyView()}
-function setZoom(next){zoom=Math.max(1,Math.min(3.5,next));if(zoom===1){panX=0;panY=0}applyView()}
+// Keep the geographic dots exact; spread only the numbered labels when they overlap.
+function layoutMarkers(){
+ const w=stage.offsetWidth,h=stage.offsetHeight;if(!w||!h)return;
+ const placed=[];
+ for(const {f,b,line} of markerEntries){
+  const cx=x(f.lon+f.dx)*w/100,cy=y(f.lat+f.dy)*h/100;
+  const size=b.offsetWidth*Math.pow(zoom,-1.5)+5/zoom,edge=size/2;
+  let best=null;
+  for(let ring=0;ring<=7;ring++){
+   const count=ring?24:1;
+   for(let step=0;step<count;step++){
+    const angle=step*2*Math.PI/count;
+    const px=Math.max(edge,Math.min(w-edge,cx+Math.cos(angle)*ring*size*.7));
+    const py=Math.max(edge,Math.min(h-edge,cy+Math.sin(angle)*ring*size*.7));
+    const collisions=placed.reduce((sum,p)=>sum+(Math.abs(px-p.x)<(size+p.size)/2&&Math.abs(py-p.y)<(size+p.size)/2?1:0),0);
+    const cost=collisions*10000+Math.hypot(px-cx,py-cy);
+    if(!best||cost<best.cost)best={x:px,y:py,size,cost};
+   }
+   if(best&&best.cost<10000)break;
+  }
+  placed.push(best);
+  b.style.left=`${best.x/w*100}%`;b.style.top=`${best.y/h*100}%`;
+  line.setAttribute('x2',best.x/w*1000);line.setAttribute('y2',best.y/h*1000);
+ }
+}
+function applyView(){
+ const maxX=Math.max(0,(stage.offsetWidth*zoom-viewport.clientWidth)/2),maxY=Math.max(0,(stage.offsetHeight*zoom-viewport.clientHeight)/2);
+ panX=Math.max(-maxX,Math.min(maxX,panX));panY=Math.max(-maxY,Math.min(maxY,panY));
+ stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;
+ stage.style.setProperty('--nums',Math.pow(1/zoom,1.5).toFixed(4));
+ document.documentElement.style.setProperty('--scale-width',`${stage.offsetWidth*0.144*zoom}px`);
+}
+function focusFeature(f){
+ zoom=Math.max(zoom,2.5);layoutMarkers();
+ const label=markerEntries.find(entry=>entry.f===f).b;
+ panX=(50-parseFloat(label.style.left))*stage.offsetWidth*zoom/100;
+ panY=(50-parseFloat(label.style.top))*stage.offsetHeight*zoom/100;
+ applyView();
+}
+function setZoom(next){zoom=Math.max(1,Math.min(3.5,next));if(zoom===1){panX=0;panY=0}layoutMarkers();applyView()}
 $('#zoom-in').addEventListener('click',()=>setZoom(zoom*1.3));
 $('#zoom-out').addEventListener('click',()=>setZoom(zoom/1.3));
-$('#zoom-reset').addEventListener('click',()=>{zoom=1;panX=0;panY=0;applyView()});
+$('#zoom-reset').addEventListener('click',()=>setZoom(1));
 viewport.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom*(e.deltaY<0?1.12:1/1.12))},{passive:false});
 viewport.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;drag={x:e.clientX,y:e.clientY,px:panX,py:panY};viewport.setPointerCapture(e.pointerId);viewport.classList.add('dragging')});
 viewport.addEventListener('pointermove',e=>{if(!drag)return;panX=drag.px+e.clientX-drag.x;panY=drag.py+e.clientY-drag.y;applyView()});
 const endDrag=()=>{drag=null;viewport.classList.remove('dragging')};
 viewport.addEventListener('pointerup',endDrag);viewport.addEventListener('pointercancel',endDrag);
 
-new ResizeObserver(applyView).observe(stage);
+new ResizeObserver(()=>{layoutMarkers();applyView()}).observe(stage);

@@ -34,3 +34,38 @@
  .list-head{color:#abc2be;border-color:#42595a}.feature-row{color:#dfede9;border-color:#344d52}.feature-row:hover,.feature-row:focus-visible,.feature-row.selected{background:#315057;color:#fff}.row-arrow,.no-results{color:#a9beb8}
  .about{background:#1c3033}.about-body>p{color:#d6e3dd}.about h2 em{color:#e2ae7e}.legend-item{background:#253b3e;border-color:#496060}.about-body .note{color:#b0c4bd}.intro-screen{background:#050505}
 }
+
+/* Keep the 2:1 projection undistorted inside taller map panels. */
+.map-stage{inset:auto 0 auto 0;top:50%;width:100%;height:auto;aspect-ratio:2;margin-top:-25%;transition:transform .65s cubic-bezier(.18,.72,.26,1)}
+.map-viewport.dragging .map-stage{transition:none}
+.map-column{position:sticky;top:18px;align-self:start}
+.map-shell{transition:box-shadow .35s ease,border-color .35s ease}
+.map-shell:hover,.map-shell:focus-within{box-shadow:0 24px 48px #28453e33}
+.leader-layer line{transition:stroke-opacity .25s ease,stroke-width .3s ease}
+.leader-layer line.selected{stroke-opacity:1;stroke-width:2.2}
+.geo-dot.selected{box-shadow:0 0 0 4px #fff8,0 1px 8px #0006;z-index:5}
+.marker{transition:opacity .2s ease,box-shadow .3s ease,scale .25s ease,filter .25s ease}
+.marker:hover,.marker:focus-visible{filter:brightness(1.18)}
+.marker.selected{animation:marker-pop .55s cubic-bezier(.2,.8,.3,1)}
+.pill,.reset-filter,.header-download,.text-link{transition:transform .25s ease,background .25s ease,border-color .25s ease,box-shadow .25s ease}
+.pill:hover,.reset-filter:hover,.header-download:hover{transform:translateY(-2px);box-shadow:0 5px 12px #102e3925}
+.pill:active,.map-controls button:active{transform:scale(.94)}
+.map-controls button{transition:background .2s ease,transform .2s ease}
+.map-controls button:hover{transform:scale(1.12)}
+.feature-row{transition:background .2s ease,transform .25s ease}
+.feature-row:hover{transform:translateX(4px)}
+.row-arrow{transition:transform .25s ease}.feature-row:hover .row-arrow{transform:translateX(3px)}
+.feature-card.card-enter{animation:card-rise .4s cubic-bezier(.2,.8,.3,1) both}
+.intro:after{animation:orbit-drift 14s ease-in-out infinite alternate}
+html:not(.intro-playing) .intro-copy{animation:hero-rise .85s cubic-bezier(.2,.8,.3,1) both}
+html:not(.intro-playing) .intro-aside{animation:hero-rise .85s .2s cubic-bezier(.2,.8,.3,1) both}
+.motion-ready .reveal{transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.3,1)}
+.motion-ready .reveal:not(.is-visible){opacity:0;transform:translateY(24px)}
+@keyframes marker-pop{0%{scale:.7}60%{scale:1.35}100%{scale:1.18}}
+@keyframes card-rise{from{opacity:.55;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hero-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes orbit-drift{to{transform:translate(30px,-24px) rotate(7deg)}}
+
+@media(max-width:1100px){.atlas-layout{display:block}.map-column{position:static}.info-panel{margin-top:20px;min-height:0}}
+@media(max-width:560px){.map-shell{aspect-ratio:1.5;min-height:230px}.map-toolbar{flex-wrap:wrap}.map-bottom{flex-wrap:wrap}.map-credits{text-align:left}.intro h1{font-size:clamp(32px,10vw,41px)}.marker{width:24px;height:24px;font-size:9px}.feature-card{padding:18px}.map-controls button{width:40px;height:40px}}
+@media(prefers-reduced-motion:reduce){.map-stage,.motion-ready .reveal{transition:none!important}.motion-ready .reveal:not(.is-visible){opacity:1;transform:none}html:not(.intro-playing) .intro-copy,html:not(.intro-playing) .intro-aside,.intro:after,.marker.selected,.feature-card.card-enter{animation:none!important}}
