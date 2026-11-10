@@ -80,7 +80,7 @@ function render(){
 render();
 
 const viewport=$('#map-viewport'),stage=$('#map-stage');
-function applyView(){stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;document.documentElement.style.setProperty("--scale-width",`${stage.offsetWidth*0.0965*zoom}px`)}
+function applyView(){stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;stage.style.setProperty('--nums',(1/zoom).toFixed(4));document.documentElement.style.setProperty("--scale-width",`${stage.offsetWidth*0.0965*zoom}px`)}
 function setZoom(next){zoom=Math.max(1,Math.min(3.5,next));if(zoom===1){panX=0;panY=0}applyView()}
 $('#zoom-in').addEventListener('click',()=>setZoom(zoom*1.3));
 $('#zoom-out').addEventListener('click',()=>setZoom(zoom/1.3));
