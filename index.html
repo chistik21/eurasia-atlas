@@ -6,8 +6,10 @@
   <meta name="theme-color" content="#142f35">
   <meta name="description" content="Интерактивная учебная карта Евразии: полуострова, острова, проливы и моря с точными координатами и удобной легендой.">
   <title>Географические объекты Евразии — интерактивный атлас</title>
-   <link rel="stylesheet" href="assets/style.css?v=intro-1">
-   <script defer src="assets/app.js?v=facts-1"></script>
+  <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro-playing');</script>
+  <link rel="stylesheet" href="assets/style.css?v=intro-2">
+  <script defer src="assets/app.js?v=facts-1"></script>
+  <script defer src="assets/intro.js?v=intro-2"></script>
 </head>
 <body>
   <div class="intro-screen" aria-hidden="true">
@@ -18,7 +20,7 @@
     </div>
   </div>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="Атлас — к началу"><span class="brand-icon">✦</span><span>АТЛАС<span class="brand-sub">ШКОЛЬНАЯ ГЕОГРАФИЯ</span></span></a>
+    <a class="brand" href="#top" aria-label="Атлас — к началу"><span class="brand-icon">✦</span><span class="brand-label">АТЛАС<span class="brand-sub">ШКОЛЬНАЯ ГЕОГРАФИЯ</span></span></a>
     <nav aria-label="Основная навигация"><a href="#map-section">Карта</a><a href="#catalog">Объекты</a><a href="#about">О карте</a></nav>
     <a class="header-download" href="assets/eurasia-map.pdf" download>↓ <span>Скачать PDF</span></a>
   </header>
