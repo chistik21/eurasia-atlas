@@ -8,8 +8,8 @@
   <meta name="description" content="Интерактивная карта мира: полуострова, острова, проливы и моря с интересными фактами и переключением темы под настройки устройства.">
   <title>Географические объекты мира — интерактивный атлас</title>
   <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro-playing');</script>
-  <link rel="stylesheet" href="assets/style.css?v=zoom-1">
-  <script defer src="assets/app.js?v=zoom-1"></script>
+  <link rel="stylesheet" href="assets/style.css?v=expand-1">
+  <script defer src="assets/app.js?v=expand-1"></script>
   <script defer src="assets/intro.js?v=intro-2"></script>
   <script defer src="assets/motion.js?v=motion-1"></script>
 </head>
@@ -41,12 +41,14 @@
       <div class="atlas-head"><div><span class="section-kicker">КАРТА 01</span><h2>Исследуй мир</h2></div><div class="atlas-tip">Выбери точку на карте или объект в списке <span aria-hidden="true">→</span></div></div>
       <div class="atlas-layout">
         <div class="map-column">
-          <div class="map-toolbar" aria-label="Фильтры карты"><div class="filter-pills" id="filter-pills"></div><button class="reset-filter" id="reset-filter" type="button" title="Показать все">Сбросить</button></div>
+          <div class="map-toolbar" aria-label="Фильтры и размер карты"><div class="filter-pills" id="filter-pills"></div><div class="map-toolbar-actions"><button class="reset-filter" id="reset-filter" type="button" title="Показать все">Сбросить</button><button class="map-expand" id="expand-map" type="button" aria-controls="map-shell" aria-expanded="false">⛶ Развернуть карту</button></div></div>
           <div class="map-shell" id="map-shell">
             <div class="map-viewport" id="map-viewport" aria-label="Географическая карта мира. Одним пальцем перемещайте карту, двумя пальцами меняйте масштаб; можно использовать кнопки.">
               <div class="map-stage" id="map-stage"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/world-map-dark.svg?v=detail-1"><img src="assets/world-map-light.svg?v=detail-1" alt="Карта всего мира с материками, морями и координатной сеткой" draggable="false"></picture><svg class="leader-layer" id="leader-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg><div id="markers"></div></div>
             </div>
             <div class="map-chip">✦ &nbsp; Весь мир</div>
+            <button class="map-close" id="close-map" type="button" aria-label="Свернуть карту" title="Свернуть карту">×</button>
+            <div class="map-selected" id="map-selected" aria-live="polite"></div>
             <div class="map-controls" aria-label="Управление картой"><span class="zoom-level" id="zoom-level" aria-hidden="true">×1.0</span><button id="zoom-in" aria-label="Увеличить карту" title="Увеличить">+</button><button id="zoom-out" aria-label="Уменьшить карту" title="Уменьшить">−</button><button id="zoom-reset" aria-label="Сбросить масштаб" title="Сбросить масштаб">⌖</button></div>
             <div class="compass" aria-label="Север наверху"><span>С</span><i></i></div>
             <div class="map-hint">Перетащи карту · колесо или два пальца для масштаба</div>

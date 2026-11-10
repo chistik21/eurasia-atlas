@@ -134,10 +134,11 @@ function visible(f){return(active==='all'||active===f.type)&&f.name.toLocaleLowe
 function select(n,scroll=false){const changed=selected!==n;selected=n;const f=features.find(o=>o.n===n);if(!f)return;
  card.style.setProperty('--card-color',colors[f.type]);
  card.innerHTML=`<div class="card-meta">${singular[f.type]} · № ${f.n.toString().padStart(2,'0')}</div><h3>${f.name}</h3><p>${f.desc}</p><div class="coords">${coord(f)}</div><section class="fun-facts" aria-labelledby="facts-title"><h4 id="facts-title">✦ Интересно знать</h4><ul>${facts[f.n].map(fact=>`<li>${fact}</li>`).join('')}</ul></section>`;
+ $('#map-selected').innerHTML=`<strong>${f.n}. ${f.name}</strong><span>${f.desc}</span>`;
  if(changed){card.classList.remove('card-enter');void card.offsetWidth;card.classList.add('card-enter')}
  document.querySelectorAll('.marker,.geo-dot,.feature-row').forEach(el=>el.classList.toggle('selected',Number(el.dataset.id)===n));
  leaders.querySelectorAll('line').forEach(el=>el.classList.toggle('selected',Number(el.dataset.id)===n));
- if(scroll){const row=list.querySelector(`.feature-row[data-id="${n}"]`);row?.scrollIntoView({block:'nearest',behavior:'smooth'})}
+ if(scroll&&!$('#map-shell').classList.contains('is-expanded')){const row=list.querySelector(`.feature-row[data-id="${n}"]`);row?.scrollIntoView({block:'nearest',behavior:'smooth'})}
 }
 function revealMap(){const m=$('#map-shell'),r=m.getBoundingClientRect();if(r.top<0||r.bottom>window.innerHeight)m.scrollIntoView({behavior:'smooth',block:'start'})}
 function render(){
@@ -282,3 +283,43 @@ viewport.addEventListener('pointerup',endPointer);
 viewport.addEventListener('pointercancel',endPointer);
 
 new ResizeObserver(()=>{layoutMarkers();applyView()}).observe(stage);
+
+const shell=$('#map-shell'),expandMap=$('#expand-map'),closeMap=$('#close-map');
+let previousView=null;
+function toggleMapSize(expand){
+ if(expand===shell.classList.contains('is-expanded'))return;
+ if(expand){
+  previousView={zoom,panX,panY};
+  shell.classList.add('is-expanded');
+  document.documentElement.classList.add('map-expanded');
+  document.body.classList.add('map-expanded');
+  expandMap.setAttribute('aria-expanded','true');
+  shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');shell.setAttribute('aria-label','Увеличенная карта мира');
+  layoutMarkers();
+  const label=markerEntries.find(entry=>entry.f.n===selected).b;
+  panX=(50-parseFloat(label.style.left))*stage.offsetWidth*zoom/100;
+  panY=(50-parseFloat(label.style.top))*stage.offsetHeight*zoom/100;
+  applyView();
+  closeMap.focus({preventScroll:true});
+ }else{
+  shell.classList.remove('is-expanded');
+  document.documentElement.classList.remove('map-expanded');
+  document.body.classList.remove('map-expanded');
+  expandMap.setAttribute('aria-expanded','false');
+  shell.removeAttribute('role');shell.removeAttribute('aria-modal');shell.removeAttribute('aria-label');
+  ({zoom,panX,panY}=previousView);previousView=null;
+  layoutMarkers();applyView();
+  expandMap.focus();
+ }
+}
+expandMap.addEventListener('click',()=>toggleMapSize(true));
+closeMap.addEventListener('click',()=>toggleMapSize(false));
+document.addEventListener('keydown',e=>{
+ if(!shell.classList.contains('is-expanded'))return;
+ if(e.key==='Escape'){e.preventDefault();toggleMapSize(false)}
+ if(e.key==='Tab'){
+  const buttons=[...shell.querySelectorAll('button:not([disabled])')];
+  if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons.at(-1).focus()}
+  else if(!e.shiftKey&&document.activeElement===buttons.at(-1)){e.preventDefault();buttons[0].focus()}
+ }
+});
