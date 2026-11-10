@@ -62,6 +62,7 @@ function select(n,scroll=false){selected=n;const f=features.find(o=>o.n===n);if(
  document.querySelectorAll('.marker,.feature-row').forEach(el=>el.classList.toggle('selected',Number(el.dataset.id)===n));
  if(scroll){const row=list.querySelector(`.feature-row[data-id="${n}"]`);row?.scrollIntoView({block:'nearest',behavior:'smooth'})}
 }
+function revealMap(){const m=$('#map-shell'),r=m.getBoundingClientRect();if(r.top<0||r.bottom>window.innerHeight)m.scrollIntoView({behavior:'smooth',block:'start'})}
 function render(){
  const matching=features.filter(visible);
  $('#result-count').textContent=matching.length;
@@ -72,7 +73,7 @@ function render(){
  for(const [type,label] of Object.entries(labels)){
   const group=matching.filter(f=>f.type===type);if(!group.length)continue;
   const h=document.createElement('div');h.className='group-title';h.style.color=colors[type];h.textContent=label;list.append(h);
-  for(const f of group){const row=document.createElement('button');row.type='button';row.className='feature-row';row.dataset.id=f.n;row.innerHTML=`<span class="row-number" style="--row-color:${colors[type]}">${f.n}</span><span class="row-name">${f.name}</span><span class="row-arrow">→</span>`;row.addEventListener('click',()=>select(f.n));list.append(row)}
+  for(const f of group){const row=document.createElement('button');row.type='button';row.className='feature-row';row.dataset.id=f.n;row.innerHTML=`<span class="row-number" style="--row-color:${colors[type]}">${f.n}</span><span class="row-name">${f.name}</span><span class="row-arrow">→</span>`;row.addEventListener('click',()=>{select(f.n);revealMap()});list.append(row)}
  }
  if(!matching.length)list.innerHTML='<div class="no-results">Объект не найден. Попробуй другой запрос.</div>';
  if(matching.length&&!matching.some(f=>f.n===selected))select(matching[0].n);else select(selected);
