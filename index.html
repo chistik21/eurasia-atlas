@@ -8,8 +8,8 @@
   <meta name="description" content="Интерактивная карта мира: полуострова, острова, проливы и моря с интересными фактами и переключением темы под настройки устройства.">
   <title>Географические объекты мира — интерактивный атлас</title>
   <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro-playing');</script>
-  <link rel="stylesheet" href="assets/style.css?v=motion-1">
-  <script defer src="assets/app.js?v=motion-1"></script>
+  <link rel="stylesheet" href="assets/style.css?v=touch-1">
+  <script defer src="assets/app.js?v=touch-1"></script>
   <script defer src="assets/intro.js?v=intro-2"></script>
   <script defer src="assets/motion.js?v=motion-1"></script>
 </head>
@@ -43,15 +43,15 @@
         <div class="map-column">
           <div class="map-toolbar" aria-label="Фильтры карты"><div class="filter-pills" id="filter-pills"></div><button class="reset-filter" id="reset-filter" type="button" title="Показать все">Сбросить</button></div>
           <div class="map-shell" id="map-shell">
-            <div class="map-viewport" id="map-viewport" aria-label="Географическая карта мира. Для перемещения потяните карту, для увеличения используйте кнопки.">
+            <div class="map-viewport" id="map-viewport" aria-label="Географическая карта мира. Одним пальцем перемещайте карту, двумя пальцами меняйте масштаб; можно использовать кнопки.">
               <div class="map-stage" id="map-stage"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/world-map-dark.svg"><img src="assets/world-map-light.svg" alt="Карта всего мира с материками, морями и координатной сеткой" draggable="false"></picture><svg class="leader-layer" id="leader-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg><div id="markers"></div></div>
             </div>
             <div class="map-chip">✦ &nbsp; Весь мир</div>
             <div class="map-controls" aria-label="Управление картой"><button id="zoom-in" aria-label="Увеличить карту" title="Увеличить">+</button><button id="zoom-out" aria-label="Уменьшить карту" title="Уменьшить">−</button><button id="zoom-reset" aria-label="Сбросить масштаб" title="Сбросить масштаб">⌖</button></div>
             <div class="compass" aria-label="Север наверху"><span>С</span><i></i></div>
-            <div class="map-hint">Перетащи карту · прокрути для масштаба</div>
+            <div class="map-hint">Перетащи карту · колесо или два пальца для масштаба</div>
           </div>
-          <div class="map-bottom"><div class="scale"><span>МАСШТАБ ПО 30° С. Ш.</span><div class="scale-bars"><b></b><b></b></div><div class="scale-labels"><i>0</i><i>2500</i><i>5000 км</i></div></div><div class="map-credits">Контуры суши: Natural Earth · схематичная карта</div></div>
+          <div class="map-bottom"><div class="touch-hint">☝ Двигай одним пальцем · масштабируй двумя · двойной тап увеличит</div><div class="scale"><span>МАСШТАБ ПО 30° С. Ш.</span><div class="scale-bars"><b></b><b></b></div><div class="scale-labels"><i>0</i><i>2500</i><i>5000 км</i></div></div><div class="map-credits">Контуры суши: Natural Earth · схематичная карта</div></div>
         </div>
 
         <aside class="info-panel" id="catalog" aria-label="Каталог географических объектов">

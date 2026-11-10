@@ -101,7 +101,7 @@ const facts={
 const $=s=>document.querySelector(s);
 const markers=$('#markers'),leaders=$('#leader-layer'),list=$('#feature-list'),card=$('#feature-card');
 const markerEntries=[];
-let active='all',query='',selected=1,zoom=1,panX=0,panY=0,drag=null;
+let active='all',query='',selected=1,zoom=1,panX=0,panY=0,drag=null,ignoreMarkerClickUntil=0;
 const wrapLon=lon=>((lon+180)%360+360)%360-180;
 const x=lon=>(wrapLon(lon)+180)/360*100, y=lat=>(90-lat)/180*100;
 const coord=f=>`${Math.abs(f.lat).toFixed(1)}° ${f.lat<0?'ю. ш.':'с. ш.'} · ${Math.abs(f.lon>180?f.lon-360:f.lon).toFixed(1)}° ${(f.lon>180||f.lon<0)?'з. д.':'в. д.'}`;
@@ -114,7 +114,7 @@ for(const f of features){
  const dot=document.createElement('span');dot.className='geo-dot';dot.style.cssText=`left:${x(f.lon)}%;top:${y(f.lat)}%;--marker-color:${colors[f.type]}`;dot.dataset.id=f.n;markers.append(dot);
  const b=document.createElement('button');b.type='button';b.className='marker';b.textContent=f.n;b.title=`${f.name} — ${coord(f)}`;b.setAttribute('aria-label',`${f.n}. ${f.name}, ${coord(f)}`);
  b.style.cssText=`left:${x(f.lon+f.dx)}%;top:${y(f.lat+f.dy)}%;--marker-color:${colors[f.type]}`;b.dataset.id=f.n;
- b.addEventListener('click',()=>select(f.n,true));markers.append(b);
+ b.addEventListener('click',()=>{if(Date.now()>=ignoreMarkerClickUntil)select(f.n,true)});markers.append(b);
  markerEntries.push({f,b,line});
 }
 
@@ -183,7 +183,9 @@ function layoutMarkers(){
  }
 }
 function applyView(){
- const maxX=Math.max(0,(stage.offsetWidth*zoom-viewport.clientWidth)/2),maxY=Math.max(0,(stage.offsetHeight*zoom-viewport.clientHeight)/2);
+ // Allow a little movement even when the whole world fits on screen.
+ const maxX=Math.max(viewport.clientWidth*.12/zoom,(stage.offsetWidth*zoom-viewport.clientWidth)/2);
+ const maxY=Math.max(viewport.clientHeight*.1/zoom,(stage.offsetHeight*zoom-viewport.clientHeight)/2);
  panX=Math.max(-maxX,Math.min(maxX,panX));panY=Math.max(-maxY,Math.min(maxY,panY));
  stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;
  stage.style.setProperty('--nums',Math.pow(1/zoom,1.5).toFixed(4));
@@ -197,13 +199,77 @@ function focusFeature(f){
  applyView();
 }
 function setZoom(next){zoom=Math.max(1,Math.min(3.5,next));if(zoom===1){panX=0;panY=0}layoutMarkers();applyView()}
+function zoomAt(next,clientX,clientY){
+ const rect=viewport.getBoundingClientRect();
+ const pointX=clientX-rect.left-viewport.clientWidth/2,pointY=clientY-rect.top-viewport.clientHeight/2;
+ const anchorX=(pointX-panX)/zoom,anchorY=(pointY-panY)/zoom;
+ zoom=Math.max(1,Math.min(3.5,next));
+ panX=pointX-anchorX*zoom;panY=pointY-anchorY*zoom;
+ layoutMarkers();applyView();
+}
 $('#zoom-in').addEventListener('click',()=>setZoom(zoom*1.3));
 $('#zoom-out').addEventListener('click',()=>setZoom(zoom/1.3));
 $('#zoom-reset').addEventListener('click',()=>setZoom(1));
-viewport.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom*(e.deltaY<0?1.12:1/1.12))},{passive:false});
-viewport.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;drag={x:e.clientX,y:e.clientY,px:panX,py:panY};viewport.setPointerCapture(e.pointerId);viewport.classList.add('dragging')});
-viewport.addEventListener('pointermove',e=>{if(!drag)return;panX=drag.px+e.clientX-drag.x;panY=drag.py+e.clientY-drag.y;applyView()});
-const endDrag=()=>{drag=null;viewport.classList.remove('dragging')};
-viewport.addEventListener('pointerup',endDrag);viewport.addEventListener('pointercancel',endDrag);
+viewport.addEventListener('wheel',e=>{e.preventDefault();zoomAt(zoom*(e.deltaY<0?1.12:1/1.12),e.clientX,e.clientY)},{passive:false});
+
+const pointers=new Map();
+let lastTap=null;
+function startPinch(){
+ const [a,b]=[...pointers.values()];
+ const rect=viewport.getBoundingClientRect();
+ const midX=(a.x+b.x)/2-rect.left-viewport.clientWidth/2;
+ const midY=(a.y+b.y)/2-rect.top-viewport.clientHeight/2;
+ drag={type:'pinch',distance:Math.max(10,Math.hypot(a.x-b.x,a.y-b.y)),startZoom:zoom,anchorX:(midX-panX)/zoom,anchorY:(midY-panY)/zoom};
+ for(const pointer of [a,b])if(!viewport.hasPointerCapture(pointer.id))viewport.setPointerCapture(pointer.id);
+ lastTap=null;
+ viewport.classList.add('dragging');
+}
+viewport.addEventListener('pointerdown',e=>{
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ const markerButton=e.target.closest('button');
+ if(!pointers.size){ignoreMarkerClickUntil=0;if(markerButton)lastTap=null}
+ pointers.set(e.pointerId,{id:e.pointerId,x:e.clientX,y:e.clientY,type:e.pointerType,onMarker:!!markerButton});
+ // Capture on the marker itself so a simple tap still fires its click event.
+ (markerButton||viewport).setPointerCapture(e.pointerId);
+ if(pointers.size>=2)startPinch();
+ else drag={type:'pan',x:e.clientX,y:e.clientY,px:panX,py:panY,started:false};
+});
+viewport.addEventListener('pointermove',e=>{
+ const pointer=pointers.get(e.pointerId);if(!pointer||!drag)return;
+ pointer.x=e.clientX;pointer.y=e.clientY;
+ if(drag.type==='pinch'&&pointers.size>=2){
+  const [a,b]=[...pointers.values()];
+  const rect=viewport.getBoundingClientRect();
+  const midX=(a.x+b.x)/2-rect.left-viewport.clientWidth/2;
+  const midY=(a.y+b.y)/2-rect.top-viewport.clientHeight/2;
+  zoom=Math.max(1,Math.min(3.5,drag.startZoom*Math.hypot(a.x-b.x,a.y-b.y)/drag.distance));
+  panX=midX-drag.anchorX*zoom;panY=midY-drag.anchorY*zoom;
+  applyView();
+ }else if(drag.type==='pan'){
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!drag.started&&Math.hypot(dx,dy)<5)return;
+  if(!drag.started){drag.started=true;lastTap=null;viewport.classList.add('dragging');if(!viewport.hasPointerCapture(e.pointerId))viewport.setPointerCapture(e.pointerId)}
+  panX=drag.px+dx;panY=drag.py+dy;applyView();
+ }
+});
+function endPointer(e){
+ const pointer=pointers.get(e.pointerId);if(!pointer)return;
+ if(e.type==='pointercancel')lastTap=null;
+ const wasPinch=drag?.type==='pinch',wasPan=drag?.type==='pan'&&drag.started;
+ pointers.delete(e.pointerId);
+ if(wasPinch||wasPan)ignoreMarkerClickUntil=Date.now()+300;
+ if(wasPinch){layoutMarkers();applyView()}
+ if(pointers.size>=2){startPinch();return}
+ if(pointers.size===1){const p=[...pointers.values()][0];drag={type:'pan',x:p.x,y:p.y,px:panX,py:panY,started:false};viewport.classList.remove('dragging');return}
+ drag=null;viewport.classList.remove('dragging');
+ if(e.type==='pointerup'&&pointer.type==='touch'&&!pointer.onMarker&&!wasPinch&&!wasPan){
+  const now=Date.now();
+  if(lastTap&&now-lastTap.time<320&&Math.hypot(pointer.x-lastTap.x,pointer.y-lastTap.y)<30){
+   zoomAt(zoom*1.6,pointer.x,pointer.y);lastTap=null;
+  }else lastTap={time:now,x:pointer.x,y:pointer.y};
+ }
+}
+viewport.addEventListener('pointerup',endPointer);
+viewport.addEventListener('pointercancel',endPointer);
 
 new ResizeObserver(()=>{layoutMarkers();applyView()}).observe(stage);
