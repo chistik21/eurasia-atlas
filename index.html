@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142f35">
+  <meta name="description" content="Интерактивная учебная карта Евразии: полуострова, острова, проливы и моря с точными координатами и удобной легендой.">
+  <title>Географические объекты Евразии — интерактивный атлас</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Атлас — к началу"><span class="brand-icon">✦</span><span>АТЛАС<span class="brand-sub">ШКОЛЬНАЯ ГЕОГРАФИЯ</span></span></a>
+    <nav aria-label="Основная навигация"><a href="#map-section">Карта</a><a href="#catalog">Объекты</a><a href="#about">О карте</a></nav>
+    <a class="header-download" href="assets/eurasia-map.pdf" download>↓ <span>Скачать PDF</span></a>
+  </header>
+
+  <main id="top">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> ИНТЕРАКТИВНЫЙ ГЕОГРАФИЧЕСКИЙ АТЛАС <span class="edition">01 / ЕВРАЗИЯ</span></div>
+        <h1 id="page-title">Географические<br><em>объекты Евразии</em></h1>
+        <p>От Пиренейского полуострова до Берингова пролива. Исследуй карту, выбирай точки и изучай расположение 22 объектов.</p>
+      </div>
+      <div class="intro-aside" aria-label="Сведения о карте"><div class="globe-mark">✦</div><span>22 ОБЪЕКТА</span><strong>4 категории</strong><small>Полуострова · острова<br>проливы · моря</small></div>
+    </section>
+
+    <section class="atlas-section" id="map-section" aria-label="Интерактивная карта и каталог">
+      <div class="atlas-head"><div><span class="section-kicker">КАРТА 01</span><h2>Исследуй Евразию</h2></div><div class="atlas-tip">Выбери точку на карте или объект в списке <span aria-hidden="true">→</span></div></div>
+      <div class="atlas-layout">
+        <div class="map-column">
+          <div class="map-toolbar" aria-label="Фильтры карты"><div class="filter-pills" id="filter-pills"></div><button class="reset-filter" id="reset-filter" type="button" title="Показать все">Сбросить</button></div>
+          <div class="map-shell" id="map-shell">
+            <div class="map-viewport" id="map-viewport" aria-label="Географическая карта Евразии. Для перемещения потяните карту, для увеличения используйте кнопки.">
+              <div class="map-stage" id="map-stage"><img src="assets/map-base.webp" alt="Контурная карта Евразии и соседних территорий с морями и координатной сеткой" draggable="false"><svg class="leader-layer" id="leader-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg><div id="markers"></div></div>
+            </div>
+            <div class="map-chip">✦ &nbsp; Евразия и прилегающие территории</div>
+            <div class="map-controls" aria-label="Управление картой"><button id="zoom-in" aria-label="Увеличить карту" title="Увеличить">+</button><button id="zoom-out" aria-label="Уменьшить карту" title="Уменьшить">−</button><button id="zoom-reset" aria-label="Сбросить масштаб" title="Сбросить масштаб">⌖</button></div>
+            <div class="compass" aria-label="Север наверху"><span>С</span><i></i></div>
+            <div class="map-hint">Перетащи карту · прокрути для масштаба</div>
+          </div>
+          <div class="map-bottom"><div class="scale"><span>МАСШТАБ ПО 30° С. Ш.</span><div class="scale-bars"><b></b><b></b></div><div class="scale-labels"><i>0</i><i>1000</i><i>2000 км</i></div></div><div class="map-credits">Контуры WGS 84 · схематичная отмывка рельефа</div></div>
+        </div>
+
+        <aside class="info-panel" id="catalog" aria-label="Каталог географических объектов">
+          <div class="panel-top"><div><span class="section-kicker">ПУТЕВОДИТЕЛЬ ПО КАРТЕ</span><h2>Объекты <span id="result-count">22</span></h2></div><div class="panel-ornament">✦</div></div>
+          <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Найти объект…" autocomplete="off"><kbd>/</kbd></label>
+          <article class="feature-card" id="feature-card" aria-live="polite"></article>
+          <div class="list-head"><span>СПИСОК ОБЪЕКТОВ</span><span>№ / 22</span></div>
+          <div class="feature-list" id="feature-list"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="about" id="about"><div><span class="section-kicker">КАК ЧИТАТЬ КАРТУ</span><h2>Одна карта.<br><em>Четыре типа объектов.</em></h2></div><div class="about-body"><p>Цвет точки показывает категорию, номер связывает её с каталогом. Нажми на маркер, чтобы увидеть название, координаты и краткое пояснение.</p><div class="legend" id="legend"></div><p class="note">Координаты отмечают характерную точку протяжённого объекта, а не его геометрический центр. Рельеф показан стилизованной светотеневой отмывкой. Масштабная линейка справедлива на 30° северной широты.</p><a href="assets/eurasia-map.png" download class="text-link">Скачать карту в PNG 5120 × 3200 <span>→</span></a></div></section>
+  </main>
+  <footer><span>АТЛАС / ГЕОГРАФИЯ</span><span>Географические объекты Евразии</span><a href="#top">Наверх ↑</a></footer>
+</body>
+</html>
