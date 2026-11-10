@@ -101,6 +101,7 @@ const facts={
 const $=s=>document.querySelector(s);
 const markers=$('#markers'),leaders=$('#leader-layer'),list=$('#feature-list'),card=$('#feature-card');
 const markerEntries=[];
+const MAX_ZOOM=10;
 let active='all',query='',selected=1,zoom=1,panX=0,panY=0,drag=null,ignoreMarkerClickUntil=0;
 const wrapLon=lon=>((lon+180)%360+360)%360-180;
 const x=lon=>(wrapLon(lon)+180)/360*100, y=lat=>(90-lat)/180*100;
@@ -157,13 +158,15 @@ function render(){
 render();
 
 const viewport=$('#map-viewport'),stage=$('#map-stage');
+const scaleMid=$('#scale-mid'),scaleEnd=$('#scale-end'),zoomLevel=$('#zoom-level');
+const markerScale=()=>Math.max(Math.pow(zoom,-1.5),.72/zoom);
 // Keep the geographic dots exact; spread only the numbered labels when they overlap.
 function layoutMarkers(){
  const w=stage.offsetWidth,h=stage.offsetHeight;if(!w||!h)return;
  const placed=[];
  for(const {f,b,line} of markerEntries){
   const cx=x(f.lon+f.dx)*w/100,cy=y(f.lat+f.dy)*h/100;
-  const size=b.offsetWidth*Math.pow(zoom,-1.5)+5/zoom,edge=size/2;
+  const size=b.offsetWidth*markerScale()+5/zoom,edge=size/2;
   let best=null;
   for(let ring=0;ring<=7;ring++){
    const count=ring?24:1;
@@ -184,12 +187,18 @@ function layoutMarkers(){
 }
 function applyView(){
  // Allow a little movement even when the whole world fits on screen.
- const maxX=Math.max(viewport.clientWidth*.12/zoom,(stage.offsetWidth*zoom-viewport.clientWidth)/2);
- const maxY=Math.max(viewport.clientHeight*.1/zoom,(stage.offsetHeight*zoom-viewport.clientHeight)/2);
+ const maxX=Math.max(viewport.clientWidth*.12/zoom,(stage.offsetWidth*zoom-viewport.clientWidth)/2+viewport.clientWidth*.12);
+ const maxY=Math.max(viewport.clientHeight*.1/zoom,(stage.offsetHeight*zoom-viewport.clientHeight)/2+viewport.clientHeight*.1);
  panX=Math.max(-maxX,Math.min(maxX,panX));panY=Math.max(-maxY,Math.min(maxY,panY));
  stage.style.transform=`translate(${panX}px, ${panY}px) scale(${zoom})`;
- stage.style.setProperty('--nums',Math.pow(1/zoom,1.5).toFixed(4));
- document.documentElement.style.setProperty('--scale-width',`${stage.offsetWidth*0.144*zoom}px`);
+ stage.style.setProperty('--nums',markerScale().toFixed(4));
+ const targetWidth=Math.min(140,Math.max(80,stage.offsetWidth*.2));
+ const widthFor=km=>stage.offsetWidth*.144*zoom*km/5000;
+ const scaleKm=[500,1000,2000,5000,10000].reduce((best,km)=>Math.abs(widthFor(km)-targetWidth)<Math.abs(widthFor(best)-targetWidth)?km:best,500);
+ document.documentElement.style.setProperty('--scale-width',`${widthFor(scaleKm)}px`);
+ if(scaleMid.textContent!==String(scaleKm/2))scaleMid.textContent=scaleKm/2;
+ if(scaleEnd.textContent!==`${scaleKm} км`)scaleEnd.textContent=`${scaleKm} км`;
+ const level=`×${zoom.toFixed(1)}`;if(zoomLevel.textContent!==level)zoomLevel.textContent=level;
 }
 function focusFeature(f){
  zoom=Math.max(zoom,2.5);layoutMarkers();
@@ -198,17 +207,17 @@ function focusFeature(f){
  panY=(50-parseFloat(label.style.top))*stage.offsetHeight*zoom/100;
  applyView();
 }
-function setZoom(next){zoom=Math.max(1,Math.min(3.5,next));if(zoom===1){panX=0;panY=0}layoutMarkers();applyView()}
+function setZoom(next){zoom=Math.max(1,Math.min(MAX_ZOOM,next));if(zoom===1){panX=0;panY=0}layoutMarkers();applyView()}
 function zoomAt(next,clientX,clientY){
  const rect=viewport.getBoundingClientRect();
  const pointX=clientX-rect.left-viewport.clientWidth/2,pointY=clientY-rect.top-viewport.clientHeight/2;
  const anchorX=(pointX-panX)/zoom,anchorY=(pointY-panY)/zoom;
- zoom=Math.max(1,Math.min(3.5,next));
+ zoom=Math.max(1,Math.min(MAX_ZOOM,next));
  panX=pointX-anchorX*zoom;panY=pointY-anchorY*zoom;
  layoutMarkers();applyView();
 }
-$('#zoom-in').addEventListener('click',()=>setZoom(zoom*1.3));
-$('#zoom-out').addEventListener('click',()=>setZoom(zoom/1.3));
+$('#zoom-in').addEventListener('click',()=>setZoom(zoom*1.5));
+$('#zoom-out').addEventListener('click',()=>setZoom(zoom/1.5));
 $('#zoom-reset').addEventListener('click',()=>setZoom(1));
 viewport.addEventListener('wheel',e=>{e.preventDefault();zoomAt(zoom*(e.deltaY<0?1.12:1/1.12),e.clientX,e.clientY)},{passive:false});
 
@@ -242,7 +251,7 @@ viewport.addEventListener('pointermove',e=>{
   const rect=viewport.getBoundingClientRect();
   const midX=(a.x+b.x)/2-rect.left-viewport.clientWidth/2;
   const midY=(a.y+b.y)/2-rect.top-viewport.clientHeight/2;
-  zoom=Math.max(1,Math.min(3.5,drag.startZoom*Math.hypot(a.x-b.x,a.y-b.y)/drag.distance));
+  zoom=Math.max(1,Math.min(MAX_ZOOM,drag.startZoom*Math.hypot(a.x-b.x,a.y-b.y)/drag.distance));
   panX=midX-drag.anchorX*zoom;panY=midY-drag.anchorY*zoom;
   applyView();
  }else if(drag.type==='pan'){

@@ -8,8 +8,8 @@
   <meta name="description" content="Интерактивная карта мира: полуострова, острова, проливы и моря с интересными фактами и переключением темы под настройки устройства.">
   <title>Географические объекты мира — интерактивный атлас</title>
   <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro-playing');</script>
-  <link rel="stylesheet" href="assets/style.css?v=touch-1">
-  <script defer src="assets/app.js?v=touch-1"></script>
+  <link rel="stylesheet" href="assets/style.css?v=zoom-1">
+  <script defer src="assets/app.js?v=zoom-1"></script>
   <script defer src="assets/intro.js?v=intro-2"></script>
   <script defer src="assets/motion.js?v=motion-1"></script>
 </head>
@@ -24,7 +24,7 @@
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Атлас — к началу"><span class="brand-icon">✦</span><span class="brand-label">АТЛАС<span class="brand-sub">ШКОЛЬНАЯ ГЕОГРАФИЯ</span></span></a>
     <nav aria-label="Основная навигация"><a href="#map-section">Карта</a><a href="#catalog">Объекты</a><a href="#about">О карте</a></nav>
-    <a class="header-download" href="assets/world-map-light.svg" download>↓ <span>Скачать карту</span></a>
+    <a class="header-download" href="assets/world-map-light.svg?v=detail-1" download>↓ <span>Скачать карту</span></a>
   </header>
 
   <main id="top">
@@ -44,14 +44,14 @@
           <div class="map-toolbar" aria-label="Фильтры карты"><div class="filter-pills" id="filter-pills"></div><button class="reset-filter" id="reset-filter" type="button" title="Показать все">Сбросить</button></div>
           <div class="map-shell" id="map-shell">
             <div class="map-viewport" id="map-viewport" aria-label="Географическая карта мира. Одним пальцем перемещайте карту, двумя пальцами меняйте масштаб; можно использовать кнопки.">
-              <div class="map-stage" id="map-stage"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/world-map-dark.svg"><img src="assets/world-map-light.svg" alt="Карта всего мира с материками, морями и координатной сеткой" draggable="false"></picture><svg class="leader-layer" id="leader-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg><div id="markers"></div></div>
+              <div class="map-stage" id="map-stage"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/world-map-dark.svg?v=detail-1"><img src="assets/world-map-light.svg?v=detail-1" alt="Карта всего мира с материками, морями и координатной сеткой" draggable="false"></picture><svg class="leader-layer" id="leader-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg><div id="markers"></div></div>
             </div>
             <div class="map-chip">✦ &nbsp; Весь мир</div>
-            <div class="map-controls" aria-label="Управление картой"><button id="zoom-in" aria-label="Увеличить карту" title="Увеличить">+</button><button id="zoom-out" aria-label="Уменьшить карту" title="Уменьшить">−</button><button id="zoom-reset" aria-label="Сбросить масштаб" title="Сбросить масштаб">⌖</button></div>
+            <div class="map-controls" aria-label="Управление картой"><span class="zoom-level" id="zoom-level" aria-hidden="true">×1.0</span><button id="zoom-in" aria-label="Увеличить карту" title="Увеличить">+</button><button id="zoom-out" aria-label="Уменьшить карту" title="Уменьшить">−</button><button id="zoom-reset" aria-label="Сбросить масштаб" title="Сбросить масштаб">⌖</button></div>
             <div class="compass" aria-label="Север наверху"><span>С</span><i></i></div>
             <div class="map-hint">Перетащи карту · колесо или два пальца для масштаба</div>
           </div>
-          <div class="map-bottom"><div class="touch-hint">☝ Двигай одним пальцем · масштабируй двумя · двойной тап увеличит</div><div class="scale"><span>МАСШТАБ ПО 30° С. Ш.</span><div class="scale-bars"><b></b><b></b></div><div class="scale-labels"><i>0</i><i>2500</i><i>5000 км</i></div></div><div class="map-credits">Контуры суши: Natural Earth · схематичная карта</div></div>
+          <div class="map-bottom"><div class="touch-hint">☝ Двигай одним пальцем · масштабируй двумя · двойной тап увеличит</div><div class="scale"><span>МАСШТАБ ПО 30° С. Ш.</span><div class="scale-bars"><b></b><b></b></div><div class="scale-labels"><i>0</i><i id="scale-mid">2500</i><i id="scale-end">5000 км</i></div></div><div class="map-credits">Контуры суши: Natural Earth · схематичная карта</div></div>
         </div>
 
         <aside class="info-panel" id="catalog" aria-label="Каталог географических объектов">
@@ -64,7 +64,7 @@
       </div>
     </section>
 
-    <section class="about" id="about"><div><span class="section-kicker">КАК ЧИТАТЬ КАРТУ</span><h2>Одна карта.<br><em>Четыре типа объектов.</em></h2></div><div class="about-body"><p>Цвет точки показывает категорию, номер связывает её с каталогом. Нажми на маркер, чтобы увидеть название, координаты и интересные факты. Выбери объект из списка, чтобы приблизить его на карте.</p><div class="legend" id="legend"></div><p class="note">Координаты отмечают характерную точку протяжённого объекта, а не его геометрический центр. Контуры суши упрощены; масштабная линейка справедлива на 30° северной широты. Тема карты автоматически соответствует светлой или тёмной теме телефона.</p><a href="assets/world-map-light.svg" download class="text-link">Скачать карту мира в SVG <span>→</span></a></div></section>
+    <section class="about" id="about"><div><span class="section-kicker">КАК ЧИТАТЬ КАРТУ</span><h2>Одна карта.<br><em>Четыре типа объектов.</em></h2></div><div class="about-body"><p>Цвет точки показывает категорию, номер связывает её с каталогом. Нажми на маркер, чтобы увидеть название, координаты и интересные факты. Выбери объект из списка, чтобы приблизить его на карте.</p><div class="legend" id="legend"></div><p class="note">Координаты отмечают характерную точку протяжённого объекта, а не его геометрический центр. Контуры суши упрощены; масштабная линейка справедлива на 30° северной широты. Тема карты автоматически соответствует светлой или тёмной теме телефона.</p><a href="assets/world-map-light.svg?v=detail-1" download class="text-link">Скачать карту мира в SVG <span>→</span></a></div></section>
   </main>
   <footer><span>АТЛАС / ГЕОГРАФИЯ</span><span>Географические объекты мира</span><a href="#top">Наверх ↑</a></footer>
 </body>
