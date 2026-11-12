@@ -110,14 +110,11 @@ html.quick-opened,body.quick-opened{overflow:hidden}
 .quick-toolbar{display:flex;gap:10px;padding:0 24px 16px}
 .quick-toolbar input{min-width:0;flex:1;padding:10px 13px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font-size:13px}
 .quick-toolbar input:focus-visible,.quick-sheet button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
-.quick-toolbar>button{border:0;border-radius:9px;padding:10px 14px;background:var(--navy);color:white;font-size:12px;font-weight:800;white-space:nowrap}
-.quick-toolbar>button:disabled{opacity:.5;cursor:default}
 .quick-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 24px 12px;scrollbar-color:var(--muted) transparent}
 .quick-group h3{margin:18px 0 10px;font-size:11px;letter-spacing:.13em;text-transform:uppercase}
 .quick-item{margin-bottom:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--cream)}
-.quick-item h4{margin:0 0 5px;font-size:15px}.quick-item p{margin:0 0 8px;font-size:12px;line-height:1.55}
-.quick-coords{font-size:11px;font-weight:800;color:var(--muted)}
-.quick-item .quick-fact{margin:10px 0 12px;color:var(--ink)}
+.quick-item h4{margin:0 0 10px;font-size:15px}
+.quick-coords{display:block;margin:10px 0;font-size:11px;font-weight:800;color:var(--muted)}
 .quick-item-actions{display:flex;gap:8px;flex-wrap:wrap}
 .quick-item-actions button{border:1px solid var(--navy);border-radius:8px;padding:7px 12px;background:var(--navy);color:white;font-size:11px;font-weight:800}
 .quick-item-actions .quick-find{background:transparent;color:var(--ink);border-color:var(--line)}
@@ -126,5 +123,16 @@ html.quick-opened,body.quick-opened{overflow:hidden}
 .quick-status{min-height:35px;margin:0;padding:8px 24px 10px;color:var(--green);font-size:11px;font-weight:800}
 @keyframes quick-fade{from{opacity:0}to{opacity:1}}
 @keyframes quick-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:560px){.quick-backdrop{align-items:end;padding:0}.quick-sheet{width:100%;max-height:92dvh;border-radius:19px 19px 0 0}.quick-head{padding:20px 18px 0}.quick-intro{margin:10px 18px 14px}.quick-toolbar{padding:0 18px 12px;flex-wrap:wrap}.quick-toolbar>button{width:100%}.quick-content{padding:0 18px 10px}.quick-status{padding:8px 18px calc(10px + env(safe-area-inset-bottom))}}
+@media(max-width:560px){.quick-backdrop{align-items:end;padding:0}.quick-sheet{width:100%;max-height:92dvh;border-radius:19px 19px 0 0}.quick-head{padding:20px 18px 0}.quick-intro{margin:10px 18px 14px}.quick-toolbar{padding:0 18px 12px}.quick-content{padding:0 18px 10px}.quick-status{padding:8px 18px calc(10px + env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){.quick-backdrop,.quick-sheet{animation:none}}
+
+/* Miniature map screenshots use the same SVG geometry as the main map. */
+.quick-map{position:relative;width:100%;aspect-ratio:2;overflow:hidden;border-radius:9px;background:#8cc5ca;isolation:isolate}
+.quick-map-stage{position:absolute;width:300%;height:300%}
+.quick-map picture,.quick-map picture img{display:block;width:100%;height:100%}
+.quick-map picture img{object-fit:fill}
+.quick-map-pin{position:absolute;z-index:1;display:grid;place-items:center;width:26px;height:26px;border:2px solid white;border-radius:50%;color:white;font-size:11px;font-weight:800;box-shadow:0 2px 9px #0009;transform:translate(-50%,-50%)}
+.quick-map-overview{position:absolute;right:8px;bottom:8px;z-index:2;width:110px;aspect-ratio:2;overflow:hidden;border:2px solid white;border-radius:6px;background:#8cc5ca;box-shadow:0 2px 10px #0006}
+.quick-map-locator{position:absolute;width:10px;height:10px;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px #102e3980;transform:translate(-50%,-50%)}
+@media(prefers-color-scheme:dark){.quick-map,.quick-map-overview{background:#173d4e}}
+@media(max-width:560px){.quick-map-overview{width:88px}.quick-map-pin{width:24px;height:24px}}

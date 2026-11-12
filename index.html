@@ -8,11 +8,11 @@
   <meta name="description" content="Интерактивная карта мира: полуострова, острова, проливы и моря с интересными фактами и переключением темы под настройки устройства.">
   <title>Географические объекты мира — интерактивный атлас</title>
   <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro-playing');</script>
-  <link rel="stylesheet" href="assets/style.css?v=quick-1">
+  <link rel="stylesheet" href="assets/style.css?v=mapshots-1">
   <script defer src="assets/app.js?v=expand-1"></script>
   <script defer src="assets/intro.js?v=intro-2"></script>
   <script defer src="assets/motion.js?v=motion-1"></script>
-  <script defer src="assets/quick.js?v=quick-1"></script>
+  <script defer src="assets/quick.js?v=mapshots-1"></script>
 </head>
 <body>
   <div class="intro-screen" aria-hidden="true">
@@ -32,7 +32,7 @@
     <section class="intro" aria-labelledby="page-title">
       <div class="intro-copy">
         <div class="eyebrow"><span class="eyebrow-line"></span> ИНТЕРАКТИВНЫЙ ГЕОГРАФИЧЕСКИЙ АТЛАС <span class="edition">01 / МИР</span></div>
-        <h1 id="page-title"><button class="title-quick" id="quick-open" type="button" aria-label="Географические — открыть шпаргалку" aria-controls="quick-sheet" aria-haspopup="dialog" title="Открыть шпаргалку">Географические</button><br><em>объекты мира</em></h1>
+        <h1 id="page-title"><button class="title-quick" id="quick-open" type="button" aria-label="Географические — открыть скрины объектов на карте" aria-controls="quick-sheet" aria-haspopup="dialog" title="Посмотреть скрины объектов на карте">Географические</button><br><em>объекты мира</em></h1>
         <p>От Камчатки до Новой Зеландии. Исследуй карту, выбирай точки и узнавай интересные факты о 18 географических объектах.</p>
       </div>
       <div class="intro-aside" aria-label="Сведения о карте"><div class="globe-mark">✦</div><span>18 ОБЪЕКТОВ</span><strong>4 категории</strong><small>Полуострова · острова<br>проливы · моря</small></div>
@@ -72,9 +72,9 @@
   <footer><span>АТЛАС / ГЕОГРАФИЯ</span><span>Географические объекты мира</span><a href="#top">Наверх ↑</a></footer>
   <div class="quick-backdrop" id="quick-backdrop" hidden>
     <section class="quick-sheet" id="quick-sheet" role="dialog" aria-modal="true" aria-labelledby="quick-title">
-      <div class="quick-head"><div><span class="section-kicker">УДОБНАЯ ШПАРГАЛКА</span><h2 id="quick-title">Географические объекты</h2></div><button class="quick-close" id="quick-close" type="button" aria-label="Закрыть шпаргалку">×</button></div>
-      <p class="quick-intro">Короткие ответы по каждому объекту. Найди нужный и скопируй в одно нажатие.</p>
-      <div class="quick-toolbar"><input id="quick-search" type="search" placeholder="Найти объект…" aria-label="Поиск в шпаргалке" autocomplete="off"><button id="quick-copy-all" type="button">Скопировать всё (18)</button></div>
+      <div class="quick-head"><div><span class="section-kicker">ОБЪЕКТЫ НА КАРТЕ</span><h2 id="quick-title">Географические объекты</h2></div><button class="quick-close" id="quick-close" type="button" aria-label="Закрыть карту объектов">×</button></div>
+      <p class="quick-intro">У каждого объекта свой фрагмент карты с точкой. Скрин можно сохранить.</p>
+      <div class="quick-toolbar"><input id="quick-search" type="search" placeholder="Найти объект…" aria-label="Поиск объектов на карте" autocomplete="off"></div>
       <div class="quick-content" id="quick-content"></div>
       <p class="quick-status" id="quick-status" role="status" aria-live="polite"></p>
     </section>
