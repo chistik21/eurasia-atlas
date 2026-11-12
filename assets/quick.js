@@ -7,6 +7,7 @@ const quickSearch=document.querySelector('#quick-search');
 const quickContent=document.querySelector('#quick-content');
 const quickStatus=document.querySelector('#quick-status');
 let quickVisible=features;
+let quickTapCount=0,quickFirstTap=0;
 
 function quickCrop(f){
  const px=x(f.lon),py=y(f.lat);
@@ -98,6 +99,10 @@ function closeQuick(){
  quickOpen.focus();
 }
 quickOpen.addEventListener('click',()=>{
+ const now=Date.now();
+ if(now-quickFirstTap>2500){quickTapCount=0;quickFirstTap=now}
+ if(++quickTapCount<3)return;
+ quickTapCount=0;quickFirstTap=0;
  quickSearch.value='';quickStatus.textContent='';renderQuick();
  quickBackdrop.hidden=false;
  document.documentElement.classList.add('quick-opened');

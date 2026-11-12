@@ -95,8 +95,7 @@ html.map-expanded,body.map-expanded{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.map-shell.is-expanded{animation:none}}
 
 /* The existing headline opens short, copyable geography answers. */
-.title-quick{display:inline;appearance:none;border:0;background:none;padding:0;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;text-align:inherit;text-decoration:underline;text-decoration-color:#dfb982a0;text-decoration-thickness:1px;text-underline-offset:.13em;transition:color .2s ease,text-decoration-color .2s ease}
-.title-quick:hover{color:#dfb982;text-decoration-color:currentColor}
+.title-quick{display:inline;appearance:none;border:0;background:none;padding:0;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;text-align:inherit;text-decoration:none;cursor:inherit;user-select:none;touch-action:manipulation}
 .title-quick:focus-visible{outline:2px solid #dfb982;outline-offset:4px;border-radius:3px}
 html.quick-opened,body.quick-opened{overflow:hidden}
 .quick-backdrop[hidden]{display:none}
